@@ -1,24 +1,25 @@
 from django.core.paginator import Paginator
-
 from django.contrib.auth import get_user_model
-
 from django.contrib.auth.decorators import login_required
-
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .models import Post, Group
-
 from .forms import PostForm
 
 POSTS_PER_PAGE = 10
 User = get_user_model()
 
 
-def index(request):
-    post_list = Post.objects.all().order_by('-pub_date')
-    paginator = Paginator(post_list, POSTS_PER_PAGE)
+def paginator(request, posts):
+    paginator = Paginator(posts, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    return page_obj
+
+
+def index(request):
+    post_list = Post.objects.all()
+    page_obj = paginator(request, post_list)
     template = 'posts/index.html'
     context = {
         'page_obj': page_obj,
@@ -28,10 +29,8 @@ def index(request):
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    posts = Post.objects.filter(group=group).order_by('-pub_date')
-    paginator = Paginator(posts, POSTS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    post_list = group.posts.all()
+    page_obj = paginator(request, post_list)
     template = 'posts/group_list.html'
     context = {
         'group': group,
@@ -42,24 +41,20 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    post_list = Post.objects.filter(author=author)
-    paginator = Paginator(post_list, POSTS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    post_list = author.posts.all()
+    page_obj = paginator(request, post_list)
     template = 'posts/profile.html'
     context = {
-        'page_obj': page_obj,
         'author': author,
+        'page_obj': page_obj,
     }
     return render(request, template, context)
 
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    post_count = Post.objects.filter(author=post.author).count()
     template = 'posts/post_detail.html'
     context = {
-        'post_count': post_count,
         'post': post,
     }
     return render(request, template, context)

@@ -1,40 +1,26 @@
 {% extends 'base.html' %}
-{% block title %}Пост {{ post|truncatechars:30 }}{% endblock %}
-<html lang="ru">
-  <head>
-  <title>Пост {{ post.text }}</title>
-  </head>
-  <body>
-    <header>
-      <nav class="navbar navbar-light" style="background-color: lightskyblue">
-        <div class="container">
-          <a class="navbar-brand" href="/">
-            <img src="/static/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
-            <span style="color:red">Ya</span>tube
-          </a>
-        </div>
-      </nav>      
-    </header>
-    <main>
+{% block title %}Пост {{ post.text|truncatechars:30 }} {% endblock %}
+{% block content %}
+<div class="container py-5">
       <div class="row">
         <aside class="col-12 col-md-3">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
               Дата публикации: {{ post.pub_date|date:"d E Y" }}
             </li>
-            {% if post.group == post.group %} 
+            {% if post.group %} 
             <li class="list-group-item">
-              Группа: {{ post.group }}
+              Группа: {{ post.group.title }}
               <a href="{% url 'posts:group_list' post.group.slug %}">
                 все записи группы
-                {% endif %}
+            {% endif %}
               </a>
             </li>
             <li class="list-group-item">
-              Автор: {{ post.author }}
+              Автор: {{ post.author.get_full_name }}
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              Всего постов автора:  <span >{{ count }}</span>
+              Всего постов автора:  <span >{{ post.author.posts.count }}</span>
             </li>
             <li class="list-group-item">
               <a href="{% url 'posts:profile' post.author %}">
@@ -48,11 +34,6 @@
           {{ post.text|linebreaksbr }}
           </p>
         </article>
-      </div> 
-    </main>
-    <footer class="border-top text-center py-3">
-      <p>© Copyright <span style="color:red">Ya</span>tube</p>
-    </footer>
-  </body>
-</html> 
-{{ endblock }}
+      </div>
+</div>
+{% endblock %}
