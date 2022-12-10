@@ -14,7 +14,7 @@
  </ul>      
  <p>{{ post.text|linebreaksbr }}</p>
  <li>  
-   <a href="{% url 'posts:post_detail' post_id %}"
+   <a href="{% url 'posts:post_detail' post.id %}"
       >подробная информация </a>
  </li>
  {% if post.group and show_group %}
